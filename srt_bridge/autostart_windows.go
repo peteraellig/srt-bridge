@@ -24,12 +24,6 @@ func autostartCommand() string {
 	return `"` + exe + `"`
 }
 
-// AutostartState: on = an entry exists; Other = it starts another copy of the bridge.
-type AutostartState struct {
-	On    bool   `json:"on"`
-	Other string `json:"other"` // the program the entry starts, when it is not this one
-}
-
 func autostartState() AutostartState {
 	k, err := registry.OpenKey(registry.CURRENT_USER, runKey, registry.QUERY_VALUE)
 	if err != nil {

@@ -71,6 +71,8 @@ func main() {
 	// Bridge Output reads the bridge, so it is looked after once the interface answers.
 	go output.loop()
 	go whip.loop()
+	videohub := newVideohubServer(hub, ":9990")
+	go videohub.Start()
 
 	url := "http://" + webLn.Addr().String() + "/"
 	log.Printf("interface on %s", url)
@@ -79,6 +81,7 @@ func main() {
 	}
 	runWindow(url, hub)
 	whip.stop()
+	videohub.Stop()
 	output.shutdown()
 	remote.stop()
 	hub.stop()

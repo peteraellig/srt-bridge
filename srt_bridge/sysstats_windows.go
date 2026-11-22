@@ -8,15 +8,6 @@ import (
 	"unsafe"
 )
 
-// SysState is what the box on the left shows about this PC and the bridge itself.
-type SysState struct {
-	CPU     float64 `json:"cpu"`     // all cores of the PC, percent
-	ProcCPU float64 `json:"procCpu"` // the bridge, percent of all cores (as the Task Manager shows it)
-	RAMPct  int     `json:"ramPct"`  // memory of the PC in use, percent
-	RAMGB   float64 `json:"ramGb"`   // memory of the PC, total
-	ProcMB  float64 `json:"procMb"`  // memory of the bridge (working set)
-}
-
 var (
 	kernel32                 = syscall.NewLazyDLL("kernel32.dll")
 	procGetSystemTimes       = kernel32.NewProc("GetSystemTimes")

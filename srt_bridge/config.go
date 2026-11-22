@@ -373,6 +373,9 @@ func checkPlaceID(id string, suffixes []string) string {
 // splitStreamID separates "<id>*forward" into the ID of the port and the flag
 // "this is the forward output". The suffix is not case sensitive.
 func splitStreamID(streamID string, suffixes []string) (id string, forward bool) {
+	if vsf, ok := parseVSFStreamID(streamID); ok {
+		return vsf.CleanResource(suffixes)
+	}
 	i := strings.LastIndexByte(streamID, '*')
 	if i < 0 {
 		return streamID, false

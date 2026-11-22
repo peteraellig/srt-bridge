@@ -1,5 +1,7 @@
 # <img src="docs/logo.png" width="96" alt=""> SRT Bridge 0.54
 
+> **Language / Idioma:** **English** · [Español](README.es.md)
+
 ## What SRT Bridge does
 
 Have you always wanted to send video signals over internet to your studio, to other production locations or to your client with (almost) no additional infrastructure? To do that, you almost always needed either a LiveU or some other service that costs money.

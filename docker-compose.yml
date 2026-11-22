@@ -1,0 +1,16 @@
+services:
+  srt-bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: srt-bridge:latest
+    container_name: srt-bridge-core
+    restart: unless-stopped
+    ports:
+      - "21101:21101/udp"
+      - "21101:21101/tcp"
+      - "9990:9990/tcp"
+    volumes:
+      - ./data:/data
+    environment:
+      - TZ=UTC

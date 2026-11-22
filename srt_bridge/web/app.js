@@ -7,6 +7,256 @@ let state = null;
 let settingsLoaded = false;
 const drawn = {}; // what each part showed last, so it is rebuilt only when it changed
 
+let tiles = [];
+
+const I18N = {
+  es: {
+    brand_sub: "Estudio de Enlaces",
+    nav_op: "OPERACIÓN",
+    nav_sys: "SISTEMA",
+    nav_main: "Canales",
+    nav_matrix: "Matriz",
+    nav_outputs: "Salidas Locales",
+    nav_receivers: "Receptores",
+    nav_setup: "Ajustes y Red",
+    nav_keys: "Claves",
+    nav_log: "Registro",
+    nav_help: "Guía Rápida",
+    nav_logout: "Cerrar sesión",
+    lbl_ports: "Puertos SRT",
+    lbl_port: "Puerto SRT",
+    lbl_live: "En vivo",
+    lbl_recv: "Receptores",
+    lbl_in: "Entrada",
+    lbl_out: "Salida",
+    lbl_proto: "Protocolo",
+    lbl_cpu: "CPU PC",
+    lbl_cpu_proc: "CPU Bridge",
+    lbl_ram: "RAM PC",
+    lbl_ram_proc: "RAM Bridge",
+    quick_title: "Panel de Canales",
+    quick_sub: "Activa canales en 1 clic, copia el enlace para tu cámara u OBS y comparte el enlace de estudio.",
+    quick_addr: "Red para enlaces",
+    btn_add_channel: "+ Activar canal",
+    btn_activate_all: "Activar todos",
+    avail_channel: "Canal disponible",
+    copy_cam: "Copiar Cámara",
+    copy_stu: "Copiar Estudio",
+    qr: "QR",
+    stu_recv: "Estudio recibe:",
+    btn_links: "Enlaces",
+    btn_edit: "Editar",
+    btn_clear: "Liberar",
+    btn_cut: "Cortar",
+    channel: "Canal",
+    lamp_live: "EN VIVO",
+    lamp_waiting: "ESPERANDO",
+    lamp_free: "LIBRE",
+    health_optimal: "Señal óptima",
+    health_unstable: "Inestable",
+    health_drop: "Pérdida",
+    waiting_conn: "Esperando conexión…",
+    recvs_connected_1: " receptor",
+    recvs_connected_n: " receptores",
+    recvs_waiting_1: " receptor conectado esperando señal",
+    recvs_waiting_n: " receptores conectados esperando señal",
+    hint_copy_cam: "Copia el enlace de Cámara y pégalo en OBS, vMix o escanea el QR",
+    on_air: "Al aire",
+    unassigned: "— Sin asignar —",
+    net_lan: "Red Local (Wi-Fi / LAN)",
+    net_wan: "Internet (IP Pública)",
+    qr_title: "Código QR",
+    qr_tab_text: "Cámara Celular (Texto)",
+    qr_tab_larix: "Larix App",
+    qr_tab_haivision: "Haivision Web",
+    qr_tab_raw: "SRT Puro",
+    qr_role_cam: "Rol: Enviar Cámara al Bridge",
+    qr_role_stu: "Rol: Recibir Retorno de Estudio",
+    qr_hint: "Escanea con la cámara de tu celular para copiar los datos, o elige Larix / Haivision según tu app.",
+    btn_close: "Cerrar",
+    btn_save: "Guardar",
+    btn_cancel: "Cancelar",
+    btn_generate: "Generar",
+    edit_title: "Editar canal",
+    link_title: "Todos los enlaces",
+    link_addr_lbl: "Dirección de esta PC",
+    no_answer: "Sin respuesta de SRT Bridge"
+  },
+  en: {
+    brand_sub: "Live Link Hub",
+    nav_op: "OPERATION",
+    nav_sys: "SYSTEM",
+    nav_main: "Channels",
+    nav_matrix: "Matrix",
+    nav_outputs: "Local Outputs",
+    nav_receivers: "Receivers",
+    nav_setup: "Setup & Network",
+    nav_keys: "Keys",
+    nav_log: "Log",
+    nav_help: "Quick Guide",
+    nav_logout: "Log out",
+    lbl_ports: "SRT Ports",
+    lbl_port: "SRT Port",
+    lbl_live: "Live",
+    lbl_recv: "Receivers",
+    lbl_in: "In",
+    lbl_out: "Out",
+    lbl_proto: "Protocol",
+    lbl_cpu: "PC CPU",
+    lbl_cpu_proc: "Bridge CPU",
+    lbl_ram: "PC RAM",
+    lbl_ram_proc: "Bridge RAM",
+    quick_title: "Channel Board",
+    quick_sub: "Activate channels in 1 click, copy links for your camera or OBS, and share studio feed.",
+    quick_addr: "Network IP",
+    btn_add_channel: "+ Activate channel",
+    btn_activate_all: "Activate all",
+    avail_channel: "Available channel",
+    copy_cam: "Copy Camera",
+    copy_stu: "Copy Studio",
+    qr: "QR",
+    stu_recv: "Studio receives:",
+    btn_links: "Links",
+    btn_edit: "Edit",
+    btn_clear: "Release",
+    btn_cut: "Cut",
+    channel: "Channel",
+    lamp_live: "LIVE",
+    lamp_waiting: "WAITING",
+    lamp_free: "FREE",
+    health_optimal: "Optimal signal",
+    health_unstable: "Unstable",
+    health_drop: "Packet drops",
+    waiting_conn: "Waiting for connection…",
+    recvs_connected_1: " receiver",
+    recvs_connected_n: " receivers",
+    recvs_waiting_1: " receiver connected waiting for signal",
+    recvs_waiting_n: " receivers connected waiting for signal",
+    hint_copy_cam: "Copy Camera link to OBS, vMix, or scan QR with phone",
+    on_air: "On air",
+    unassigned: "— Unassigned —",
+    net_lan: "Local Network (Wi-Fi / LAN)",
+    net_wan: "Internet (Public IP)",
+    qr_title: "QR Code",
+    qr_tab_text: "Phone Camera (Text)",
+    qr_tab_larix: "Larix App",
+    qr_tab_haivision: "Haivision Web",
+    qr_tab_raw: "Raw SRT",
+    qr_role_cam: "Role: Send Camera to Bridge",
+    qr_role_stu: "Role: Receive Studio Return",
+    qr_hint: "Scan with phone camera to copy details, or choose Larix / Haivision for your app.",
+    btn_close: "Close",
+    btn_save: "Save",
+    btn_cancel: "Cancel",
+    btn_generate: "Generate",
+    edit_title: "Edit channel",
+    link_title: "All links",
+    link_addr_lbl: "This PC address",
+    no_answer: "No answer from SRT Bridge"
+  }
+};
+
+let currentLang = "es";
+try { currentLang = localStorage.getItem("srt_lang") || "es"; } catch {}
+
+function tr(key, fallback) {
+  return (I18N[currentLang] && I18N[currentLang][key]) || fallback || key;
+}
+
+function updateLangSwitchUI() {
+  const enBtn = $("langEn");
+  const esBtn = $("langEs");
+  if (enBtn) {
+    enBtn.style.background = currentLang === "en" ? "#2158c7" : "transparent";
+    enBtn.style.color = currentLang === "en" ? "#fff" : "#8fa0bf";
+  }
+  if (esBtn) {
+    esBtn.style.background = currentLang === "es" ? "#2158c7" : "transparent";
+    esBtn.style.color = currentLang === "es" ? "#fff" : "#8fa0bf";
+  }
+}
+
+function applyLanguageToDOM() {
+  updateLangSwitchUI();
+  if ($("brandSub")) $("brandSub").textContent = tr("brand_sub", "Estudio de Enlaces");
+  if ($("navGroupOp")) $("navGroupOp").textContent = tr("nav_op", "OPERACIÓN");
+  if ($("navGroupSys")) $("navGroupSys").textContent = tr("nav_sys", "SISTEMA");
+  if ($("navMain")) $("navMain").textContent = tr("nav_main", "Canales");
+  if ($("navMatrix")) $("navMatrix").textContent = tr("nav_matrix", "Matriz");
+  if ($("navOutputs")) $("navOutputs").textContent = tr("nav_outputs", "Salidas Locales");
+  if ($("navReceivers")) $("navReceivers").textContent = tr("nav_receivers", "Receptores");
+  if ($("navSetup")) $("navSetup").textContent = tr("nav_setup", "Ajustes y Red");
+  if ($("navKeys")) $("navKeys").textContent = tr("nav_keys", "Claves");
+  if ($("navLog")) $("navLog").textContent = tr("nav_log", "Registro");
+  if ($("navHelp")) $("navHelp").textContent = tr("nav_help", "Guía Rápida");
+  if ($("logoutBtn")) $("logoutBtn").textContent = tr("nav_logout", "Cerrar sesión");
+
+  if ($("sidePortLbl")) $("sidePortLbl").textContent = tr("lbl_port", "Puerto SRT");
+  if ($("sideLiveLbl")) $("sideLiveLbl").textContent = tr("lbl_live", "En vivo");
+  if ($("sideRecvLbl")) $("sideRecvLbl").textContent = tr("lbl_recv", "Receptores");
+  if ($("sideInLbl")) $("sideInLbl").textContent = tr("lbl_in", "Entrada");
+  if ($("sideRateLbl")) $("sideRateLbl").textContent = tr("lbl_out", "Salida");
+  if ($("sideSrtLbl")) $("sideSrtLbl").textContent = tr("lbl_proto", "Protocolo");
+  if ($("sideCpuLbl")) $("sideCpuLbl").textContent = tr("lbl_cpu", "CPU PC");
+  if ($("sideCpuProcLbl")) $("sideCpuProcLbl").textContent = tr("lbl_cpu_proc", "CPU Bridge");
+  if ($("sideRamLbl")) $("sideRamLbl").textContent = tr("lbl_ram", "RAM PC");
+  if ($("sideRamProcLbl")) $("sideRamProcLbl").textContent = tr("lbl_ram_proc", "RAM Bridge");
+
+  if ($("quickBarTitle")) $("quickBarTitle").textContent = tr("quick_title", "Panel de Canales");
+  if ($("quickBarSubtitle")) $("quickBarSubtitle").textContent = tr("quick_sub", "Activa canales en 1 clic...");
+  if ($("quickAddrLbl")) $("quickAddrLbl").textContent = tr("quick_addr", "Red para enlaces");
+  if ($("quickAddBtn")) $("quickAddBtn").textContent = tr("btn_add_channel", "+ Activar canal");
+  if ($("quickAllBtn")) $("quickAllBtn").textContent = tr("btn_activate_all", "Activar todos");
+
+  if ($("linkTitle")) $("linkTitle").textContent = tr("link_title", "Todos los enlaces");
+  if ($("linkCloseBtn")) $("linkCloseBtn").textContent = tr("btn_close", "Cerrar");
+  if ($("linkAddrLbl")) $("linkAddrLbl").childNodes[0].nodeValue = tr("link_addr_lbl", "Dirección de esta PC") + "\n    ";
+
+  if ($("qrTitle")) $("qrTitle").textContent = tr("qr_title", "Código QR");
+  if ($("qrCloseBtn")) $("qrCloseBtn").textContent = tr("btn_close", "Cerrar");
+  if ($("qrModeText")) $("qrModeText").textContent = tr("qr_tab_text", "Cámara Celular (Texto)");
+  if ($("qrModeLarix")) $("qrModeLarix").textContent = tr("qr_tab_larix", "Larix App");
+  if ($("qrModeHaivision")) $("qrModeHaivision").textContent = tr("qr_tab_haivision", "Haivision Web");
+  if ($("qrModeRaw")) $("qrModeRaw").textContent = tr("qr_tab_raw", "SRT Puro");
+  if ($("qrRoleCamOpt")) $("qrRoleCamOpt").textContent = tr("qr_role_cam", "Rol: Enviar Cámara al Bridge");
+  if ($("qrRoleStuOpt")) $("qrRoleStuOpt").textContent = tr("qr_role_stu", "Rol: Recibir Retorno de Estudio");
+  if ($("qrHint")) $("qrHint").textContent = tr("qr_hint", "Escanea con la cámara de tu celular...");
+
+  if ($("editTitle")) $("editTitle").textContent = tr("edit_title", "Editar canal");
+  if ($("editCancelBtn")) $("editCancelBtn").textContent = tr("btn_cancel", "Cancelar");
+  if ($("editSaveBtn")) $("editSaveBtn").textContent = tr("btn_save", "Guardar");
+  if ($("editGen")) $("editGen").textContent = tr("btn_generate", "Generar");
+  if ($("editRecvGen")) $("editRecvGen").textContent = tr("btn_generate", "Generar");
+
+  if (Array.isArray(tiles)) {
+    for (const t of tiles) {
+      if (t.activateBtn) t.activateBtn.textContent = tr("btn_add_channel", "+ Activar canal");
+      if (t.freeBody) {
+        const p = t.freeBody.querySelector("p");
+        if (p) p.textContent = tr("avail_channel", "Canal disponible");
+      }
+      if (t.copyCam) t.copyCam.textContent = tr("copy_cam", "Copiar Cámara");
+      if (t.copyStu) t.copyStu.textContent = tr("copy_stu", "Copiar Estudio");
+      if (t.qrBtn) t.qrBtn.textContent = tr("qr", "QR");
+      if (t.routeRow) {
+        const sp = t.routeRow.querySelector("span");
+        if (sp) sp.textContent = tr("stu_recv", "Estudio recibe:");
+      }
+      if (t.links) t.links.textContent = tr("btn_links", "Enlaces");
+      if (t.edit) t.edit.textContent = tr("btn_edit", "Editar");
+      if (t.clearBtn) t.clearBtn.textContent = tr("btn_clear", "Liberar");
+      if (t.disc) t.disc.textContent = tr("btn_cut", "Cortar");
+    }
+  }
+}
+
+function setLanguage(lang) {
+  currentLang = lang === "en" ? "en" : "es";
+  try { localStorage.setItem("srt_lang", currentLang); } catch {}
+  applyLanguageToDOM();
+  if (state) render(state);
+}
+
 function el(tag, attrs, ...kids) {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -93,15 +343,6 @@ async function change(method, path, body, okNote, errNote) {
 }
 
 const label = (p) => p.name || "Line " + p.slot;
-// The WHIP input in the matrix: a source number above every signal.
-const WHIP_SOURCE = 100;
-const whipOn = () => !!(state.whip && state.whip.enabled);
-const whipPlace = () => ({ slot: state.whip.slot, name: state.whip.name || "WHIP" });
-// The signal (or the WHIP input) a forward output gets; null = nothing.
-function srcOf(source) {
-  if (source === WHIP_SOURCE) return state.whip ? whipPlace() : null;
-  return source ? state.places[source - 1] || null : null;
-}
 // The stream ID receivers use for the forward output: the receiver key, or sender key*forward.
 const recvName = (p) => p.recvId || p.id + "*" + state.suffixes[0];
 // One port per signal: the port says which signal, stream IDs are not used.
@@ -134,14 +375,146 @@ function changed(key, value) {
 
 async function copy(text, btn) {
   const was = btn.textContent;
-  try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; }
-  catch { btn.textContent = "Failed"; }
-  setTimeout(() => { btn.textContent = was; }, 1500);
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = "Copiado";
+    btn.classList.add("copied");
+  } catch {
+    btn.textContent = "Error";
+  }
+  setTimeout(() => { btn.textContent = was; btn.classList.remove("copied"); }, 1400);
+}
+
+function sortedLocalAddrs() {
+  const raw = (state && state.addresses && state.addresses.length) ? [...state.addresses] : ["127.0.0.1"];
+  const rank = (ip) => ip.startsWith("192.168.") ? 0 : ip.startsWith("10.") ? 1 : ip.startsWith("172.") ? 3 : 2;
+  return raw.sort((a, b) => rank(a) - rank(b));
+}
+
+function quickHost() {
+  const sel = $("quickAddr");
+  if (sel && sel.value) return sel.value;
+  const local = sortedLocalAddrs();
+  return local[0] || state.publicIp || "127.0.0.1";
+}
+
+function buildSrtUrlForHost(p, isForward, hostIp) {
+  const host = (hostIp || quickHost()) + ":" + p.port;
+  if (perSignal()) {
+    return "srt://" + host + "?latency=" + state.latencyMs + (p.passIn ? "&passphrase=" + encodeURIComponent(p.passIn) : "");
+  }
+  const sid = isForward ? recvName(p) : p.id;
+  const pass = isForward ? p.passFwd : p.passIn;
+  return "srt://" + host + "?streamid=" + encodeURIComponent(sid) + "&latency=" + state.latencyMs + (pass ? "&passphrase=" + encodeURIComponent(pass) : "");
+}
+
+function buildSrtUrl(p, isForward) {
+  return buildSrtUrlForHost(p, isForward, quickHost());
+}
+
+function renderQuickBar() {
+  const sel = $("quickAddr");
+  if (!sel) return;
+  const local = sortedLocalAddrs();
+  const key = JSON.stringify([local, state.publicIp, currentLang]);
+  if (drawn.quickAddr !== key) {
+    drawn.quickAddr = key;
+    const prev = sel.value;
+    const opts = [];
+    for (const a of local) opts.push(el("option", { value: a }, a + " · " + tr("net_lan", "Red Local (Wi-Fi / LAN)")));
+    if (state.publicIp) opts.push(el("option", { value: state.publicIp }, state.publicIp + " · " + tr("net_wan", "Internet (IP Pública)")));
+    sel.replaceChildren(...opts);
+    if ([...sel.options].some((o) => o.value === prev)) sel.value = prev;
+  }
+  const hasFree = !perSignal() && state.places.some((p) => !inUse(p));
+  const addBtn = $("quickAddBtn");
+  if (addBtn) {
+    addBtn.hidden = perSignal();
+    addBtn.disabled = !hasFree;
+  }
+  const allBtn = $("quickAllBtn");
+  if (allBtn) {
+    allBtn.hidden = perSignal();
+    allBtn.disabled = !hasFree;
+  }
+}
+
+function nextFreeId(slot) {
+  const taken = new Set();
+  for (const p of state.places) {
+    if (p.id) taken.add(p.id);
+    if (p.recvId) taken.add(p.recvId);
+  }
+  const base = "cam" + slot;
+  if (!taken.has(base)) return base;
+  for (let n = 1; n <= 99; n++) {
+    const cand = base + "_" + n;
+    if (!taken.has(cand)) return cand;
+  }
+  return base + "_" + Date.now();
+}
+
+async function quickActivate(slot) {
+  const p = state.places[slot - 1];
+  const name = (p && p.name) ? p.name : "Cámara " + slot;
+  const id = nextFreeId(slot);
+  const source = (p && p.source) ? p.source : slot;
+  try {
+    render(await api("PUT", "/api/places", { slot, name, id, source }));
+    note("mainNote", "Canal #" + slot + " activado (ID: " + id + ")");
+  } catch (e) {
+    note("mainErr", e.message);
+  }
+}
+
+async function quickActivateAll() {
+  if (!state || perSignal()) return;
+  const freeList = state.places.filter((p) => !inUse(p));
+  for (const p of freeList) {
+    const slot = p.slot;
+    const name = p.name || ("Cámara " + slot);
+    const id = nextFreeId(slot);
+    const source = p.source || slot;
+    try {
+      state = await api("PUT", "/api/places", { slot, name, id, source });
+    } catch (e) {
+      note("mainErr", e.message);
+      render(state);
+      return;
+    }
+  }
+  render(state);
+  note("mainNote", "Todos los canales están activos y listos");
+}
+
+async function quickClear(slot) {
+  const p = state.places[slot - 1];
+  if (!p || perSignal()) return;
+  const n = (p.sender ? 1 : 0) + p.receivers.length + p.forward.length;
+  if (n && !confirm("Hay " + n + " conexión(es) activa(s) en el canal #" + slot + ". ¿Liberar canal y desconectar?")) return;
+  try {
+    render(await api("PUT", "/api/places", { slot, id: "", name: "", passIn: "", passFwd: "", recvId: "" }));
+    note("mainNote", "Canal #" + slot + " liberado");
+  } catch (e) {
+    note("mainErr", e.message);
+  }
+}
+
+if ($("quickAddBtn")) {
+  $("quickAddBtn").addEventListener("click", () => {
+    if (!state) return;
+    const free = state.places.find((p) => !inUse(p));
+    if (free) quickActivate(free.slot);
+  });
+}
+if ($("quickAllBtn")) {
+  $("quickAllBtn").addEventListener("click", quickActivateAll);
 }
 
 function render(st) {
   state = st;
   renderSide();
+  renderQuickBar();
   renderTiles();
   renderMatrix();
   renderReceivers();
@@ -150,11 +523,9 @@ function render(st) {
   renderNet();
   renderRemote();
   renderAutostart();
-  renderShutdown();
   renderOutputs();
   renderKeys();
-  renderWhip();
-  put($("logWhere"), "· newest first · log file " + state.logFile + " · settings " + state.configFile);
+  put($("logWhere"), "· más recientes primero · log " + state.logFile);
   if (!settingsLoaded) { fillSettings(); settingsLoaded = true; }
 }
 
@@ -166,126 +537,151 @@ function renderSide() {
     if (p.sender) inp += p.sender.mbps;
     for (const c of p.receivers.concat(p.forward)) { recv++; out += c.mbps; }
   }
-  let wUsed = 0, wLive = 0;
-  if (whipOn()) {
-    wUsed = 1;
-    if (state.whip.live) { wLive = 1; inp += state.whip.kbps / 1024; }
-    for (const c of state.whip.receivers) { recv++; out += c.mbps; }
-  }
-  put($("sidePortLbl"), perSignal() ? "SRT ports" : "SRT port");
+  put($("sidePortLbl"), perSignal() ? tr("lbl_ports", "Puertos SRT") : tr("lbl_port", "Puerto SRT"));
   put($("sidePort"), range(state.portRange));
   $("sidePort").title = "UDP " + range(state.portRange);
-  put($("sideSrt"), state.srtVersion);
-  $("sideSrt").parentNode.title = "SRT " + state.srtVersion + " (" + state.srtLibrary + "); devices need SRT " + state.srtVersion + " or newer";
+  put($("sideSrt"), "SRT " + state.srtVersion);
   const sys = state.sys;
   put($("sideCpu"), sys.cpu.toFixed(0) + " %");
   put($("sideCpuProc"), sys.procCpu.toFixed(1) + " %");
-  put($("sideRam"), sys.ramPct + " % of " + sys.ramGb.toFixed(0) + " GB");
+  put($("sideRam"), sys.ramPct + " % " + (currentLang === "en" ? "of " : "de ") + sys.ramGb.toFixed(0) + " GB");
   put($("sideRamProc"), sys.procMb.toFixed(0) + " MB");
-  put($("sideLive"), (live + wLive) + " of " + (used + wUsed));
+  put($("sideLive"), live + (currentLang === "en" ? " of " : " de ") + used);
   put($("sideRecv"), String(recv));
   put($("sideIn"), mbps(inp));
   put($("sideRate"), mbps(out));
-  put($("credit"), "Version " + state.version + " · Peter Aellig");
-  if (state.srtError) put($("portBadge"), "Not open: " + state.srtError, "chBadge bad");
-  else put($("portBadge"), "Listening on UDP " + range(state.portRange), "chBadge ok");
+  put($("credit"), "v" + state.version);
+  if (state.srtError) put($("portBadge"), (currentLang === "en" ? "Port closed: " : "Puerto cerrado: ") + state.srtError, "chBadge bad");
+  else put($("portBadge"), (currentLang === "en" ? "Active · UDP " : "Activo · UDP ") + range(state.portRange), "chBadge ok");
 }
 
-// ---- tiles: built once per number of signals, then only their texts change ----
-let tiles = [];
 function buildTile(slot) {
   const t = { slot };
-  const dd = (key, cls) => (t[key] = el("dd", { class: cls || "" }, "–"));
   t.name = el("span", { class: "name" });
   t.lamp = el("span", { class: "lamp" }, el("i"));
   t.lampText = el("span");
   t.lamp.append(t.lampText);
-  t.sid = el("span", { class: "sid" });
-  t.copyBtn = el("button", { type: "button", class: "sm mini", onclick: () => copy(perSignal() ? String(state.places[slot - 1].port) : state.places[slot - 1].id, t.copyBtn) }, "Copy");
-  t.links = el("button", { type: "button", class: "sm narrow", onclick: () => openLinks(slot) }, "Links");
-  t.edit = el("button", { type: "button", class: "sm narrow", onclick: () => openEdit(slot) }, "Edit");
-  t.reset = el("button", { type: "button", class: "sm wide resetBtn", onclick: () => resetSignal(slot, t.reset) }, "Reset");
-  t.reset.title = "clears stream ID, name, passphrases and receiver key of this signal (click twice)";
-  t.power = el("button", { type: "button", class: "sm wide powerBtn", onclick: () => togglePower(slot) }, "✕ Off");
+
+  t.activateBtn = el("button", { type: "button", class: "activateBtn", onclick: () => quickActivate(slot) }, tr("btn_add_channel", "+ Activar canal"));
+  t.freeBody = el("div", { class: "freeBody" },
+    el("p", null, tr("avail_channel", "Canal disponible")),
+    t.activateBtn
+  );
+
+  t.heroRate = el("span", { class: "heroRate" }, "–");
+  t.health = el("span", { class: "healthPill" });
+  t.heroSub = el("div", { class: "heroSub" });
+  t.heroErr = el("div", { class: "heroErr", hidden: true });
+
+  t.copyCam = el("button", { type: "button", class: "qBtn cam", title: "Copia enlace SRT listo para pegar en Cámara / OBS / vMix", onclick: () => copy(buildSrtUrl(state.places[slot - 1], false), t.copyCam) }, tr("copy_cam", "Copiar Cámara"));
+  t.copyStu = el("button", { type: "button", class: "qBtn", title: "Copia enlace SRT de retorno para VLC / Estudio", onclick: () => copy(buildSrtUrl(state.places[slot - 1], true), t.copyStu) }, tr("copy_stu", "Copiar Estudio"));
+  t.qrBtn = el("button", { type: "button", class: "qBtn", title: "Mostrar código QR para celular (compatible con cámara normal, Larix y Haivision)", onclick: () => openSlotQr(slot) }, tr("qr", "QR"));
+
+  t.routeSel = el("select", {
+    title: "Elige qué señal de entrada sale en el enlace de Estudio de este canal",
+    onchange: () => change("PUT", "/api/places", { slot, source: Number(t.routeSel.value) }, ["mainNote", "Ruta de canal #" + slot + " actualizada"], "mainErr")
+  });
+  t.routeRow = el("div", { class: "routeRow" }, el("span", null, tr("stu_recv", "Estudio recibe:")), t.routeSel);
+
+  t.sid = el("span", { class: "tileKey" });
+  t.links = el("button", { type: "button", class: "sm mini", title: "Ver todos los enlaces y opciones", onclick: () => openLinks(slot) }, tr("btn_links", "Enlaces"));
+  t.edit = el("button", { type: "button", class: "sm mini", title: "Cambiar nombre, clave o contraseña", onclick: () => openEdit(slot) }, tr("btn_edit", "Editar"));
+  t.clearBtn = el("button", { type: "button", class: "sm mini", title: "Liberar y desactivar este canal", onclick: () => quickClear(slot) }, tr("btn_clear", "Liberar"));
+  t.disc = el("button", { type: "button", class: "sm mini", title: "Desconectar cámara actual", onclick: () => disconnect(slot) }, tr("btn_cut", "Cortar"));
+
+  t.activeBody = el("div", { class: "activeBody", style: "display:flex;flex-direction:column;gap:10px" },
+    el("div", { class: "heroMetrics" },
+      el("div", { class: "heroTop" }, t.heroRate, t.health),
+      t.heroSub,
+      t.heroErr
+    ),
+    el("div", { class: "quickCopyRow" }, t.copyCam, t.copyStu, t.qrBtn),
+    t.routeRow,
+    el("div", { class: "tileFoot" }, t.sid, el("div", { class: "tileActs" }, t.links, t.edit, t.clearBtn, t.disc))
+  );
+
   t.root = el("div", { class: "tile" },
-    el("div", { class: "tileHead" }, el("span", { class: "no" }, "# " + slot), t.name, t.lamp),
-    el("div", { class: "idRow" }, t.sid, t.copyBtn),
-    el("dl", { class: "stats" },
-      el("dt", null, "bitrate"), dd("rate", "big"),
-      el("dt", null, "video"), dd("video"),
-      el("dt", null, "audio"), dd("audio"),
-      el("dt", null, "loss · drops"), dd("loss"),
-      el("dt", null, "RTT · latency"), dd("rtt"),
-      el("dt", null, "on air"), dd("air"),
-      el("dt", null, "from"), dd("from"),
-      el("dt", null, "error"), dd("err"),
-      el("div", { class: "sep" }),
-      el("div", { class: "out" }, (t.origLbl = el("span", null, "original ")), (t.orig = el("b"))),
-      el("div", { class: "out" }, (t.fwdLbl = el("span", null, "forward ")), (t.fwd = el("b")))),
-    el("div", { class: "tileActs" }, t.links, t.edit, t.reset, t.power));
+    el("div", { class: "tileHead" }, el("span", { class: "no" }, "#" + slot), t.name, t.lamp),
+    t.freeBody,
+    t.activeBody
+  );
   return t;
 }
 
-// The power button: on = «✕ Off» switches the signal off; off = «Switch on».
-function showPower(btn, off, can, what) {
-  put(btn, off ? "Switch on" : "✕ Off", "sm wide powerBtn" + (off ? " isOff" : ""));
-  btn.disabled = !can;
-  btn.title = off ? "switched off: every device of this " + what + " is turned away. Click to switch it on again"
-    : "switch this " + what + " off: its devices are disconnected and turned away while they keep calling";
-}
-
 function renderTiles() {
-  const wOn = whipOn();
-  if (tiles.length !== state.places.length || drawn.whipTile !== wOn) {
+  if (tiles.length !== state.places.length) {
     tiles = state.places.map((p) => buildTile(p.slot));
-    if (!whipTile) whipTile = buildWhipTile();
-    $("tiles").replaceChildren(...tiles.map((t) => t.root), ...(wOn ? [whipTile.root] : []));
-    $("tiles").classList.toggle("withWhip", wOn);
-    $("tiles").style.setProperty("--whipRows", String(Math.max(1, Math.ceil(state.places.length / 4))));
-    drawn.whipTile = wOn;
+    $("tiles").replaceChildren(...tiles.map((t) => t.root));
   }
-  if (wOn) fillWhipTile();
+  const routeOptsKey = JSON.stringify(state.places.map((x) => [x.slot, label(x), !!x.sender]));
   for (const p of state.places) {
     const t = tiles[p.slot - 1], s = p.sender;
     const ps = perSignal(), used = inUse(p);
-    t.root.className = "tile" + (p.off ? " off" : p.sender ? " live" : used ? "" : " free");
-    put(t.name, label(p));
+    t.root.className = "tile" + (s ? " live" : used ? "" : " free");
+    put(t.name, used ? label(p) : tr("channel", "Canal") + " " + p.slot);
     t.name.title = label(p);
-    put(t.lampText, p.off ? "OFF" : s ? "LIVE" : used ? "WAITING" : "FREE");
-    t.lamp.className = "lamp" + (p.off ? " bad" : s ? " live" : used ? " wait" : "");
-    showPower(t.power, p.off, used || p.off, "signal");
-    if (!t.reset.dataset.armed) t.reset.disabled = !p.id && !p.name && !p.passIn;
-    put(t.sid, ps ? "UDP " + p.port : p.id || "no stream ID", "sid" + (used ? "" : " none"));
-    t.sid.title = ps ? "port of this signal, no stream ID needed" : p.id;
-    t.copyBtn.title = ps ? "Copy the port" : "Copy the stream ID";
-    t.copyBtn.disabled = t.links.disabled = !used;
-    put(t.rate, s ? kbps(s.mbps) : "–");
-    const m = s && s.media;
-    put(t.video, m ? [m.video, m.videoCodec].filter(Boolean).join(" · ") || "not known" : "–");
-    put(t.audio, m ? audioText(m) : "–");
-    t.audio.title = m && m.audio.length > 1 ? "channels per track: " + m.audio.map((c) => c || "?").join(" + ") : "";
-    // Loss is repaired by SRT; drops are what is really missing in the picture.
-    // The last minute only: errors at the start go away by themselves, the totals stay in the tooltip.
-    put(t.loss, s ? s.recentLoss + " (" + pct(s.recentLoss, s.recentPkts) + ") · " + s.recentDrops + " (" + pct(s.recentDrops, s.recentPkts) + ")" : "–", s && s.recentDrops ? "bad" : "");
-    t.loss.title = s ? "last minute · since connected: loss " + s.loss + " packets (" + pct(s.loss, s.pkts) + ") resent by SRT, drops " + s.drops + " packets (" + pct(s.drops, s.pkts) + ") really missing" : "";
-    put(t.rtt, s ? s.rttMs.toFixed(0) + " ms · " + s.latencyMs + " ms" + (s.encrypted ? " · encrypted" : "") : "–");
-    put(t.air, s ? since(s.since) + (p.starts > 1 ? " · " + count(p.starts - 1, "restart", "restarts") : "") : p.starts ? count(p.starts, "start", "starts") + ", now off" : "–", !s && p.starts ? "warn" : "");
-    put(t.from, s ? s.addr : "–");
+    put(t.lampText, s ? tr("lamp_live", "EN VIVO") : used ? tr("lamp_waiting", "ESPERANDO") : tr("lamp_free", "LIBRE"));
+    t.lamp.className = "lamp" + (s ? " live" : used ? " wait" : "");
+
+    t.freeBody.hidden = used;
+    t.activeBody.hidden = !used;
+    if (!used) continue;
+
+    put(t.sid, ps ? "UDP " + p.port : "UDP " + p.port + " · ID: " + p.id);
+    t.sid.title = ps ? "Puerto dedicado UDP " + p.port : "Puerto UDP " + p.port + " · Stream ID: " + p.id + " · Retorno: " + recvName(p);
+    t.clearBtn.hidden = ps;
+    t.disc.disabled = !s;
+
+    if (s) {
+      put(t.heroRate, kbps(s.mbps), "heroRate");
+      const m = s.media;
+      const vid = m ? [m.video, m.videoCodec].filter(Boolean).join(" ") : "";
+      const aud = m && m.audio.length ? audioText(m) : "";
+      const recvCount = p.receivers.length + p.forward.length;
+
+      if (s.recentDrops > 0) {
+        put(t.health, tr("health_drop", "Pérdida") + " (" + s.recentDrops + ")", "healthPill bad");
+      } else if (s.recentLoss > 5) {
+        put(t.health, tr("health_unstable", "Inestable"), "healthPill warn");
+      } else {
+        put(t.health, tr("health_optimal", "Señal óptima"), "healthPill good");
+      }
+      t.health.hidden = false;
+
+      const parts = [];
+      if (vid) parts.push(vid);
+      if (aud) parts.push(aud);
+      parts.push("RTT " + s.rttMs.toFixed(0) + "ms");
+      parts.push(tr("on_air", "Al aire") + " " + since(s.since));
+      if (recvCount) parts.push(recvCount + (recvCount === 1 ? tr("recvs_connected_1", " receptor") : tr("recvs_connected_n", " receptores")));
+      put(t.heroSub, parts.join(" · "));
+    } else {
+      put(t.heroRate, tr("waiting_conn", "Esperando conexión…"), "heroRate muted");
+      t.health.hidden = true;
+      const recvCount = p.receivers.length + p.forward.length;
+      put(t.heroSub, recvCount
+        ? recvCount + (recvCount === 1 ? tr("recvs_waiting_1", " receptor conectado esperando señal") : tr("recvs_waiting_n", " receptores conectados esperando señal"))
+        : tr("hint_copy_cam", "Copia el enlace de Cámara y pégalo en OBS, vMix o escanea el QR"));
+    }
+
     const e = signalError(p.slot);
-    put(t.err, e ? e.short : "–", e ? "bad" : "");
-    t.err.title = e ? e.reason + " · from " + e.addr + " · " + count(e.count, "try", "tries") : "";
-    const src = srcOf(p.source);
-    // With a port per signal there is one kind of receiver: whoever listens on the port gets the matrix output.
-    const list = ps ? p.forward : p.receivers;
-    let o = 0;
-    for (const c of list) o += c.mbps;
-    put(t.origLbl, ps ? "receivers " : "original out ");
-    put(t.fwdLbl, ps ? "they get " : "forward out ");
-    put(t.orig, !ps && state.noOriginal ? "switched off" : list.length ? (ps ? list.length : count(list.length, "device fetches", "devices fetch") + " it") + " · " + mbps(o) : ps ? "none" : "nobody fetches it");
-    if (ps) put(t.fwd, src ? "#" + src.slot + " " + label(src) : "nothing (not assigned)");
-    else put(t.fwd, (src ? "gets #" + src.slot + " " + label(src) : "not assigned") + (p.forward.length ? " · " + count(p.forward.length, "receiver", "receivers") : ""));
-    t.fwd.parentNode.title = t.fwd.textContent;
-    t.orig.parentNode.title = ps ? t.orig.textContent : "devices that fetch this signal unchanged, with its stream ID (first link in Links): " + t.orig.textContent;
+    t.heroErr.hidden = !e;
+    if (e) {
+      put(t.heroErr, "Error: " + e.short);
+      t.heroErr.title = e.reason + " (" + e.addr + ")";
+    }
+
+    if (t.routeKey !== routeOptsKey) {
+      t.routeKey = routeOptsKey;
+      const opts = [el("option", { value: "0" }, tr("unassigned", "— Sin asignar —"))];
+      for (const x of state.places) {
+        opts.push(el("option", { value: String(x.slot) }, (x.sender ? (currentLang === "en" ? "[LIVE] " : "[VIVO] ") : "") + "#" + x.slot + " " + label(x)));
+      }
+      t.routeSel.replaceChildren(...opts);
+    }
+    if (document.activeElement !== t.routeSel) {
+      t.routeSel.value = String(p.source || 0);
+    }
   }
 }
 
@@ -305,24 +701,8 @@ function signalError(slot) {
   return state.rejected.find((r) => r.slot === slot && r.short && now - r.time <= 10) || null;
 }
 
-async function togglePower(slot) {
-  const p = state.places[slot - 1];
-  await change("PUT", "/api/places", { slot, off: !p.off }, ["mainNote", p.off ? "signal #" + slot + " on" : "signal #" + slot + " off"], "mainErr");
-}
-
-// Reset needs two clicks on the same button (no dialog: a dialog can be suppressed,
-// then nothing would happen). The first click arms it for 3 seconds.
-async function resetSignal(slot, btn) {
-  if (!btn.dataset.armed) {
-    btn.dataset.armed = "1";
-    put(btn, "Sure? Reset", "sm wide resetBtn armed");
-    btn.disabled = false;
-    setTimeout(() => { delete btn.dataset.armed; put(btn, "Reset", "sm wide resetBtn"); }, 3000);
-    return;
-  }
-  delete btn.dataset.armed;
-  put(btn, "Reset", "sm wide resetBtn");
-  await change("PUT", "/api/places", { slot, id: "", name: "", passIn: "", off: false }, ["mainNote", "signal #" + slot + " reset"], "mainErr");
+async function disconnect(slot) {
+  await change("POST", "/api/disconnect", { slot }, ["mainNote", "input disconnected"], "mainErr");
 }
 
 // ---- generated keys: the settings live on this computer (browser storage of the window), not in config.json ----
@@ -449,21 +829,17 @@ newKey("rxKey", "rxErr");
 // ---- matrix: always all signals ----
 function renderMatrix() {
   const view = state.places.map((p) => [p.id, p.name, p.source, !!p.sender, p.forward.length]);
-  const wView = whipOn() ? [state.whip.name, state.whip.live, state.whip.id] : null;
-  if (!changed("mx", [view, wView, state.suffixes[0], state.portMode, state.srtPort])) return;
+  if (!changed("mx", [view, state.suffixes[0], state.portMode, state.srtPort])) return;
   const ps = perSignal(), outWord = ps ? "output" : "forward output";
   put($("mxSub"), "· row = " + outWord + ", column = input · one input per row");
   put($("mxLeg"), "Set the matrix before the show. Changing a crosspoint reconnects the receivers of that " + outWord + ". «all ↓» gives one input to every " + outWord + "."
     + (ps ? " A row is what a device gets when it listens on the port of that signal." : " A row is fetched with the stream ID of that signal plus *" + state.suffixes[0] + "."));
-  // The columns: every signal, and the WHIP input after them when it is on.
-  const inputs = state.places.map((p) => ({ src: p.slot, p, live: !!p.sender, st: p.sender ? "LIVE" : inUse(p) ? "no input" : "free", where: ps ? "UDP " + p.port : p.id }));
-  if (whipOn()) inputs.push({ src: WHIP_SOURCE, p: whipPlace(), live: state.whip.live, st: state.whip.live ? "LIVE" : "no input", where: "WHIP", whip: true });
   const head = el("tr", null, el("th", { class: "corner" }, outWord + " ↓  ·  input →"));
-  for (const inp of inputs) {
-    const p = inp.p;
-    head.append(el("th", { class: (inp.live ? "live" : "") + (inp.whip ? " whipCol" : ""), title: label(p) + (inp.where ? " · " + inp.where : "") },
-      el("span", { class: "no" }, "#" + p.slot), label(p), el("span", { class: "st" }, inp.st),
-      el("button", { type: "button", class: "allBtn", title: "give #" + p.slot + " " + label(p) + " to every " + outWord, onclick: () => setColumn(inp.src) }, "all ↓")));
+  for (const p of state.places) {
+    const where = ps ? "UDP " + p.port : p.id;
+    head.append(el("th", { class: p.sender ? "live" : "", title: label(p) + (where ? " · " + where : "") },
+      el("span", { class: "no" }, "#" + p.slot), label(p), el("span", { class: "st" }, p.sender ? "LIVE" : inUse(p) ? "no input" : "free"),
+      el("button", { type: "button", class: "allBtn", title: "give #" + p.slot + " " + label(p) + " to every " + outWord, onclick: () => setColumn(p.slot) }, "all ↓")));
   }
   const body = el("tbody");
   for (const out of state.places) {
@@ -472,14 +848,14 @@ function renderMatrix() {
     const tr = el("tr", null, el("th", { class: n ? "live" : "", title: addr },
       el("span", { class: "no" }, "#" + out.slot), label(out),
       el("span", { class: "st" }, addr ? addr + (n ? " · " + count(n, "receiver", "receivers") : "") : "free")));
-    for (const inp of inputs) {
-      const on = out.source === inp.src;
-      tr.append(el("td", { class: out.slot === inp.src ? "self" : inp.whip ? "whipCol" : "" }, el("button", {
+    for (const inp of state.places) {
+      const on = out.source === inp.slot;
+      tr.append(el("td", { class: out.slot === inp.slot ? "self" : "" }, el("button", {
         type: "button", class: "cell" + (on ? " on" : ""),
         "aria-pressed": on ? "true" : "false",
-        title: (ps ? "output" : "forward") + " of #" + out.slot + " " + label(out) + (on ? " gets #" : " ← #") + inp.p.slot + " " + label(inp.p),
-        onclick: () => setSource(out, on ? 0 : inp.src),
-      }, on ? "●" : "")));
+        title: (ps ? "output" : "forward") + " of #" + out.slot + " " + label(out) + (on ? " gets #" : " ← #") + inp.slot + " " + label(inp),
+        onclick: () => setSource(out, on ? 0 : inp.slot),
+      }, on ? "ON" : "")));
     }
     body.append(tr);
   }
@@ -529,7 +905,7 @@ function renderReceivers() {
     const cells = [0, 1, 2, 3, 4, 5].map(() => el("td", { class: "num" }));
     recvCells.set(c.id, cells);
     fill(c, cells);
-    const src = kind === "forward" ? srcOf(p.source) : null;
+    const src = kind === "forward" && p.source ? state.places[p.source - 1] : null;
     body.append(el("tr", null,
       el("td", null, el("span", { class: "pid" }, "#" + p.slot + " " + label(p)), el("span", { class: "sub" }, ps ? "UDP " + p.port : kind === "forward" ? recvName(p) : p.id)),
       el("td", null, kind === "forward" ? (ps ? "" : "forward: ") + (src ? "#" + src.slot + " " + label(src) : "not assigned") : "original"),
@@ -622,13 +998,12 @@ async function checkFirewall() {
   if (document.querySelector('section[data-page="setup"]').hidden) return;
   try {
     const f = await api("GET", "/api/firewall");
-    const ports = "UDP " + range(f.ports) + (f.webPort ? " and TCP " + f.webPort : "") + (f.whipPort ? ", WHIP TCP/UDP " + f.whipPort : "");
+    const ports = "UDP " + range(f.ports) + (f.webPort ? " and TCP " + f.webPort : "");
     // The same state twice: in the card «Internet access» and next to the port in the card «SRT».
     for (const n of ["", "2"]) {
       const lamp = $("fwLamp" + n), text = $("fwText" + n);
       if (f.match) { lamp.className = "lamp live"; put(text, "OPEN: rules for " + ports + " in place"); }
-      else if (f.udpMatch && f.webPort && !f.webMatch) { lamp.className = "lamp wait"; put(text, "TCP " + f.webPort + " for remote access not open yet: set the rule again"); }
-      else if (f.udpMatch && f.whipPort && !f.whipMatch) { lamp.className = "lamp wait"; put(text, "WHIP port " + f.whipPort + " (TCP and UDP) not open yet: set the rule again"); }
+      else if (f.udpMatch && f.webPort) { lamp.className = "lamp wait"; put(text, "TCP " + f.webPort + " for remote access not open yet: set the rule again"); }
       else if (f.rule) { lamp.className = "lamp wait"; put(text, "OTHER PORTS: rule does not open UDP " + range(f.ports)); }
       else if (f.detail) { lamp.className = "lamp"; put(text, "could not be read: " + f.detail); }
       else { lamp.className = "lamp bad"; put(text, "CLOSED: no rule for " + ports); }
@@ -658,9 +1033,8 @@ setInterval(checkFirewall, 3000);
 function renderNet() {
   const ps = perSignal(), ports = "UDP " + range(state.portRange);
   const web = state.remote && state.remote.enabled;
-  const wp = whipOn() ? state.whip.port : 0;
-  put($("fwdPort"), ports + (web ? " and TCP " + state.srtPort : "") + (wp ? ", TCP and UDP " + wp : ""));
-  put($("fwdOnly"), [web ? "TCP " + state.srtPort + " is for remote access." : "", wp ? "TCP and UDP " + wp + " are for the WHIP input." : "", !web && !wp ? "Only UDP is needed." : ""].filter(Boolean).join(" "));
+  put($("fwdPort"), ports + (web ? " and TCP " + state.srtPort : ""));
+  put($("fwdOnly"), web ? "TCP " + state.srtPort + " is for remote access." : "Only UDP is needed.");
   put($("fwdHost"), (state.addresses.length ? state.addresses.join(" or ") : "its local address") + (ps ? ", same ports " : ", port ") + range(state.portRange));
   put($("fwHelp"), ps
     ? "Opens " + ports + " for incoming connections, one port per signal. Windows asks for confirmation as administrator. After a new first port or number of signals, add the rule again."
@@ -715,7 +1089,6 @@ function openLinks(slot) {
 }
 
 function drawLinks() {
-  if (whipOn() && linkSlot === state.whip.slot) return drawWhipLinks();
   const p = state.places[linkSlot - 1];
   if (!p || !inUse(p)) return;
   $("linkTitle").textContent = "Links for #" + p.slot + " " + label(p);
@@ -725,7 +1098,7 @@ function drawLinks() {
   if (perSignal()) {
     // The port is the address of the signal: one link for sending and for receiving, no stream ID.
     const u = "srt://" + host + "?latency=" + state.latencyMs + (p.passIn ? "&passphrase=" + encodeURIComponent(p.passIn) : "");
-    const src = srcOf(p.source);
+    const src = p.source ? state.places[p.source - 1] : null;
     rows = [
       ["Send to this signal (caller, no stream ID)", u],
       ["Receive on this port (caller, same address): what the matrix assigns, now " + (src ? "#" + src.slot + " " + label(src) : "nothing"), u],
@@ -746,10 +1119,6 @@ function drawLinks() {
       ["Haivision Play: forward output", play(fwd)],
     ];
   }
-  showLinkRows(rows);
-}
-
-function showLinkRows(rows) {
   $("linkList").replaceChildren(...rows.map(([what, link]) => {
     const btn = el("button", { type: "button", class: "sm" }, "Copy");
     btn.addEventListener("click", () => copy(link, btn));
@@ -760,19 +1129,125 @@ function showLinkRows(rows) {
 
 // The QR code is drawn by the bridge itself (no internet needed) and shown in a small window.
 let qrUrl = "";
-async function openQr(what, link) {
-  try {
-    const res = await fetch("/api/qr", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: link }) });
-    if (!res.ok) throw new Error((await res.text()).trim() || "no QR code");
-    if (qrUrl) URL.revokeObjectURL(qrUrl);
-    qrUrl = URL.createObjectURL(await res.blob());
-    $("qrImg").src = qrUrl;
-    $("qrTitle").textContent = "QR code";
-    $("qrText").textContent = link;
-    $("qrText").title = what;
-    $("qrDlg").showModal();
-  } catch (e) { alert("QR code: " + e.message); }
+let qrCtx = { slot: 0, mode: "text", what: "", rawLink: "" };
+
+function populateQrHosts() {
+  const sel = $("qrHostSel");
+  if (!sel || !state) return;
+  const keep = sel.value || quickHost();
+  const local = sortedLocalAddrs();
+  const opts = [];
+  for (const a of local) opts.push(el("option", { value: a }, a + " · Wi-Fi Local"));
+  if (state.publicIp) opts.push(el("option", { value: state.publicIp }, state.publicIp + " · Internet 4G/5G"));
+  sel.replaceChildren(...opts);
+  if ([...sel.options].some((o) => o.value === keep)) sel.value = keep;
 }
+
+function buildQrPayload() {
+  if (!qrCtx.slot) {
+    return { title: qrCtx.what || "Código QR", payload: qrCtx.rawLink, hint: "Escanea el código QR con tu celular." };
+  }
+  const p = state.places[qrCtx.slot - 1];
+  const isFwd = $("qrRoleSel") && $("qrRoleSel").value === "stu";
+  const hostIp = ($("qrHostSel") && $("qrHostSel").value) || quickHost();
+  const srtUrl = buildSrtUrlForHost(p, isFwd, hostIp);
+  const chanName = "#" + p.slot + " " + label(p) + (isFwd ? " (Estudio)" : " (Cámara)");
+  const sid = perSignal() ? "(sin Stream ID)" : (isFwd ? recvName(p) : p.id);
+
+  if (qrCtx.mode === "larix") {
+    const rawHost = "srt://" + hostIp + ":" + p.port;
+    let larixUrl = "larix://set/v1?conn[][url]=" + encodeURIComponent(rawHost)
+      + "&conn[][name]=" + encodeURIComponent("SRT " + chanName)
+      + "&conn[][srtmode]=c"
+      + "&conn[][srtlatency]=" + state.latencyMs;
+    if (sid && !perSignal()) {
+      larixUrl += "&conn[][srtstreamid]=" + encodeURIComponent(sid);
+    }
+    const pass = isFwd ? p.passFwd : p.passIn;
+    if (pass) {
+      larixUrl += "&conn[][srtpass]=" + encodeURIComponent(pass);
+    }
+    return {
+      title: "QR Larix · " + chanName,
+      payload: larixUrl,
+      hint: "En Larix Broadcaster ve a Ajustes -> Acción -> Escanear código QR para importar automáticamente."
+    };
+  }
+  if (qrCtx.mode === "haivision") {
+    const hvUrl = "https://play.haivision.com/play?url=" + encodeURIComponent(srtUrl.replace("streamid=", "StreamID=").replace("latency=", "Latency="));
+    return {
+      title: "QR Haivision · " + chanName,
+      payload: hvUrl,
+      hint: "Enlace web https:// compatible con cualquier cámara de celular y Haivision Play Pro."
+    };
+  }
+  if (qrCtx.mode === "raw") {
+    return {
+      title: "QR SRT Puro · " + chanName,
+      payload: srtUrl,
+      hint: "URI srt:// directo. Nota: la cámara nativa de Android puede decir 'sin datos' si ninguna app registra srt://; usa 'Cámara Celular (Texto)' para copiar."
+    };
+  }
+  const textCard = [
+    "SRT Bridge · " + chanName,
+    srtUrl,
+    "Servidor: srt://" + hostIp + ":" + p.port,
+    "Stream ID: " + sid,
+    "Latencia: " + state.latencyMs + " ms"
+  ].join("\n");
+  return {
+    title: "QR Celular · " + chanName,
+    payload: textCard,
+    hint: "Escanea con la cámara normal de tu Android o iPhone: se abrirá como texto listo para tocar 'Copiar' sin error."
+  };
+}
+
+async function refreshQrImage() {
+  const { title, payload, hint } = buildQrPayload();
+  const res = await fetch("/api/qr", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: payload }) });
+  if (!res.ok) throw new Error((await res.text()).trim() || "no QR code");
+  if (qrUrl) URL.revokeObjectURL(qrUrl);
+  qrUrl = URL.createObjectURL(await res.blob());
+  $("qrImg").src = qrUrl;
+  $("qrTitle").textContent = title;
+  $("qrText").textContent = payload;
+  if ($("qrHint")) $("qrHint").textContent = hint;
+}
+
+async function openSlotQr(slot) {
+  qrCtx = { slot, mode: qrCtx.mode || "text", what: "", rawLink: "" };
+  if ($("qrControls")) $("qrControls").hidden = false;
+  populateQrHosts();
+  for (const b of document.querySelectorAll("#qrModeTabs button[data-qrmode]")) {
+    b.classList.toggle("on", b.dataset.qrmode === qrCtx.mode);
+  }
+  try {
+    await refreshQrImage();
+    if (!$("qrDlg").open) $("qrDlg").showModal();
+  } catch (e) { alert("QR: " + e.message); }
+}
+
+async function openQr(what, link) {
+  const isHttp = link.startsWith("http://") || link.startsWith("https://");
+  qrCtx = { slot: 0, mode: isHttp ? "raw" : "text", what, rawLink: isHttp ? link : ("SRT Bridge · " + what + "\n" + link) };
+  if ($("qrControls")) $("qrControls").hidden = true;
+  try {
+    await refreshQrImage();
+    if (!$("qrDlg").open) $("qrDlg").showModal();
+  } catch (e) { alert("QR: " + e.message); }
+}
+
+if ($("qrModeTabs")) {
+  $("qrModeTabs").addEventListener("click", (ev) => {
+    const btn = ev.target.closest("button[data-qrmode]");
+    if (!btn) return;
+    qrCtx.mode = btn.dataset.qrmode;
+    for (const b of document.querySelectorAll("#qrModeTabs button[data-qrmode]")) b.classList.toggle("on", b === btn);
+    refreshQrImage().catch(() => {});
+  });
+}
+if ($("qrRoleSel")) $("qrRoleSel").addEventListener("change", () => refreshQrImage().catch(() => {}));
+if ($("qrHostSel")) $("qrHostSel").addEventListener("change", () => refreshQrImage().catch(() => {}));
 $("linkAddr").addEventListener("change", drawLinks);
 
 // ---- remote access: this interface over HTTPS on TCP <SRT port> ----
@@ -838,35 +1313,6 @@ function renderAutostart() {
 }
 $("asOn").addEventListener("change", () => change("PUT", "/api/autostart", { on: $("asOn").checked },
   ["asNote", "saved"], "asErr"));
-
-// Shut down this computer: two clicks on the same button (no dialog), then a
-// countdown of Windows that every open interface shows and can cancel.
-function renderShutdown() {
-  const btn = $("sdBtn"), at = state.shutdownAt || 0;
-  const left = at ? Math.max(0, at - Math.floor(Date.now() / 1000)) : 0;
-  if (at) {
-    $("sdLamp").className = "lamp bad";
-    put($("sdText"), left ? "SHUTTING DOWN in " + left + " s" : "SHUTTING DOWN");
-    delete btn.dataset.armed;
-    put(btn, "Cancel shutdown", "pending");
-  } else {
-    $("sdLamp").className = "lamp live";
-    put($("sdText"), "running");
-    if (!btn.dataset.armed) put(btn, "Shut down this computer", "");
-  }
-}
-$("sdBtn").addEventListener("click", async () => {
-  const btn = $("sdBtn");
-  if (state.shutdownAt) { await change("POST", "/api/shutdown/cancel", {}, ["asNote", "shutdown cancelled"], "asErr"); return; }
-  if (!btn.dataset.armed) {
-    btn.dataset.armed = "1";
-    put(btn, "Sure? Shut down", "armed");
-    setTimeout(() => { if (btn.dataset.armed) { delete btn.dataset.armed; renderShutdown(); } }, 3000);
-    return;
-  }
-  delete btn.dataset.armed;
-  await change("POST", "/api/shutdown", {}, ["asNote", "shutting down in 20 s"], "asErr");
-});
 
 // ---- Bridge Output: start, stop, an output per signal ----
 const OUT_KINDS = [["off", "Off"], ["omt", "OMT"], ["ndi", "NDI"]];
@@ -1029,8 +1475,8 @@ function openEdit(slot) {
   put($("editPassInLbl"), ps ? "Passphrase for this port · empty = none" : "Passphrase: input and original · empty = none");
   put($("editPassFwdLbl"), ps ? "Passphrase: forward output · not used" : "Passphrase: forward output · empty = none");
   put($("editHelp"), ps
-    ? "A passphrase has 10 to 79 characters and applies to the sender and to the receivers on this port. A new passphrase reconnects the devices of this signal. The key length (AES 128, 192 or 256) is set by the caller: each device chooses its own."
-    : "A passphrase has 10 to 79 characters. A new key or passphrase reconnects the devices that use it. The key length (AES 128, 192 or 256) is set by the caller: each encoder and decoder chooses its own, the bridge takes it.");
+    ? "A passphrase has 10 to 79 characters and applies to the sender and to the receivers on this port. A new passphrase reconnects the devices of this signal."
+    : "A passphrase has 10 to 79 characters. A new key or passphrase reconnects the devices that use it.");
   $("editErr").textContent = "";
   $("editDlg").showModal();
 }
@@ -1061,165 +1507,12 @@ $("editForm").addEventListener("submit", async (ev) => {
 
 for (const b of document.querySelectorAll("[data-close]")) b.addEventListener("click", () => b.closest("dialog").close());
 
-// ---- WHIP input: the tile after the last signal, its links, and its card in Setup ----
-let whipTile = null;
-function buildWhipTile() {
-  const t = {};
-  const dd = (key, cls) => (t[key] = el("dd", { class: cls || "" }, "–"));
-  t.no = el("span", { class: "no" }, "#");
-  t.name = el("span", { class: "name" });
-  t.lamp = el("span", { class: "lamp" }, el("i"));
-  t.lampText = el("span");
-  t.lamp.append(t.lampText);
-  t.sid = el("span", { class: "sid" });
-  t.copyBtn = el("button", { type: "button", class: "sm mini", title: "Copy the stream ID for receivers", onclick: () => copy(state.whip.id, t.copyBtn) }, "Copy");
-  t.links = el("button", { type: "button", class: "sm narrow", onclick: () => openLinks(state.whip.slot) }, "Links");
-  t.edit = el("button", { type: "button", class: "sm narrow", title: "WHIP settings in Setup", onclick: () => document.querySelector('#nav [data-go="setup"]').click() }, "Setup");
-  t.disc = el("button", { type: "button", class: "sm wide", title: "closes the WHIP connection; the sender may connect again at once", onclick: () => change("POST", "/api/whip/disconnect", {}, ["mainNote", "WHIP sender disconnected"], "mainErr") }, "Disconnect");
-  t.power = el("button", { type: "button", class: "sm wide powerBtn", onclick: () => change("PUT", "/api/whip", { off: !state.whip.off }, ["mainNote", state.whip.off ? "WHIP signal on" : "WHIP signal off"], "mainErr") }, "✕ Off");
-  t.root = el("div", { class: "tile whip" },
-    el("div", { class: "tileHead" }, t.no, t.name, t.lamp),
-    el("div", { class: "idRow" }, t.sid, t.copyBtn),
-    el("dl", { class: "stats" },
-      el("dt", null, "bitrate"), dd("rate", "big"),
-      el("dt", null, "video"), dd("video"),
-      el("dt", null, "audio"), dd("audio"),
-      el("dt", null, "lost · held"), dd("loss"),
-      el("dt", null, "sound delay"), dd("delay"),
-      el("dt", null, "on air"), dd("air"),
-      el("dt", null, "from"), dd("from"),
-      el("dt", null, "error"), dd("err"),
-      el("div", { class: "sep" }),
-      el("div", { class: "out" }, el("span", null, "original out "), (t.orig = el("b"))),
-      el("div", { class: "out" }, el("span", null, "in the matrix "), (t.fwd = el("b")))),
-    el("div", { class: "tileActs" }, t.links, t.edit, t.disc, t.power));
-  return t;
-}
-
-// The program's own state (srt-bridge-whip); {} while it does not answer.
-const whipProg = () => (state.whip.program && state.whip.program.state) || {};
-
-function whipError() {
-  const w = state.whip, pr = w.program || {}, ps = whipProg();
-  if (!pr.found) return "srt-bridge-whip.exe not found";
-  if (pr.error) return pr.error;
-  if (ps.error) return ps.error;
-  if (ps.soundError) return "no sound: " + ps.soundError;
-  if (!w.key) return "no WHIP key set: every sender is turned away";
-  const e = signalError(w.slot);
-  return e ? e.short : "";
-}
-
-function fillWhipTile() {
-  const t = whipTile, w = state.whip, ps = whipProg(), live = w.live;
-  const sender = !!ps.live;
-  t.root.className = "tile whip" + (w.off ? " off" : live ? " live" : "");
-  put(t.no, "# " + w.slot);
-  put(t.name, whipPlace().name);
-  t.name.title = "WHIP input · " + whipPlace().name;
-  put(t.lampText, w.off ? "OFF" : live ? "LIVE" : sender ? "STARTING" : "WAITING");
-  t.lamp.className = "lamp" + (w.off ? " bad" : live ? " live" : " wait");
-  showPower(t.power, w.off, true, "WHIP signal");
-  put(t.sid, w.id || "no stream ID", "sid" + (w.id ? "" : " none"));
-  t.sid.title = "stream ID for receivers (SRT); the sender uses WHIP on port " + w.port;
-  t.disc.disabled = !sender;
-  put(t.rate, live ? Math.round(w.kbps) + " kbit/s" : "–");
-  const m = live && w.media;
-  put(t.video, m ? [m.video, m.videoCodec].filter(Boolean).join(" · ") || "not known" : sender && ps.video ? ps.video : "–");
-  put(t.audio, m ? audioText(m) + " (from Opus)" : sender && ps.audio ? ps.audio : "–");
-  // Lost: video packets not repaired in time. Held: pictures not passed on (broken, or waiting for a keyframe).
-  put(t.loss, sender ? (ps.lost || 0) + " · " + (ps.dropped || 0) : "–", sender && ps.lost ? "warn" : "");
-  t.loss.title = sender ? "video packets lost for good: " + (ps.lost || 0) + " · pictures held back: " + (ps.dropped || 0) + " · keyframes asked for: " + (ps.keyRequests || 0) + " · sound packets lost: " + (ps.audioLost || 0) : "";
-  put(t.delay, sender && ps.delayMs ? ps.delayMs + " ms" : "–");
-  t.delay.title = "time between the decoder clock and the pictures: the AAC sound needs it (Opus decode, AAC frame, AAC encoder delay)";
-  put(t.air, sender && ps.since ? since(ps.since) + (ps.sessions > 1 ? " · " + count(ps.sessions - 1, "restart", "restarts") : "") : "–");
-  put(t.from, sender ? ps.client : "–");
-  const e = whipError();
-  put(t.err, e || "–", e ? "bad" : "");
-  t.err.title = e;
-  let o = 0;
-  for (const c of w.receivers) o += c.mbps;
-  put(t.orig, w.receivers.length ? count(w.receivers.length, "device fetches", "devices fetch") + " it · " + mbps(o) : perSignal() ? "only over the matrix (port per signal)" : "nobody fetches it");
-  put(t.fwd, w.forward.length ? "out on " + w.forward.map((n) => "#" + n).join(", ") : "not assigned");
-  t.fwd.parentNode.title = "forward outputs that get the WHIP input (Matrix)";
-}
-
-// The WHIP address for a sender, with the host chosen in the Links window.
-const whipUrl = (host) => "http://" + host + ":" + state.whip.port + "/whip";
-
-function drawWhipLinks() {
-  const w = state.whip;
-  const name = whipPlace().name;
-  $("linkTitle").textContent = "Links for #" + w.slot + " " + name + (name === "WHIP" ? "" : " (WHIP)");
-  const addr = $("linkAddr").value;
-  const rows = [
-    ["WHIP sender (OBS: Service «WHIP», Server = this address, Bearer Token = the key below)", whipUrl(addr)],
-    ["WHIP key (bearer token)", w.key || "(no key set)"],
-  ];
-  if (!perSignal() && w.id) {
-    const u = "srt://" + addr + ":" + state.srtPort + "?streamid=" + encodeURIComponent(w.id) + "&latency=" + state.latencyMs + (w.pass ? "&passphrase=" + encodeURIComponent(w.pass) : "");
-    rows.push(["Receive this signal (SRT caller)", u]);
-    rows.push(["Haivision Play: receive", "https://play.haivision.com/play?url=" + encodeURIComponent(u.replace("streamid=", "StreamID=").replace("latency=", "Latency="))]);
-  }
-  showLinkRows(rows);
-}
-
-// Setup card. The form is filled once, and again after a save, so typing is never overwritten.
-let whipFilled = false;
-function fillWhipForm() {
-  const w = state.whip;
-  $("whOn").checked = w.enabled;
-  $("whPort").value = w.port;
-  $("whBitrate").value = String(w.aacBitrate);
-  $("whKey").value = w.key;
-  $("whId").value = w.id;
-  $("whPass").value = w.pass;
-  $("whName").value = w.name;
-  whipFilled = true;
-}
-
-function renderWhip() {
-  if (!state.whip) return;
-  if (!whipFilled) fillWhipForm();
-  const w = state.whip, pr = w.program || {}, ps = whipProg();
-  const lamp = $("whLamp"), text = $("whText");
-  if (!w.enabled) { lamp.className = "lamp"; put(text, "OFF"); }
-  else if (!pr.found) { lamp.className = "lamp bad"; put(text, "srt-bridge-whip.exe not found next to the bridge"); }
-  else if (pr.error && !pr.running) { lamp.className = "lamp bad"; put(text, pr.error); }
-  else if (!pr.running) { lamp.className = "lamp wait"; put(text, "STARTING"); }
-  else if (w.live) { lamp.className = "lamp live"; put(text, "LIVE: " + (ps.client || "sender") + " sends · " + Math.round(w.kbps) + " kbit/s"); }
-  else if (ps.live) { lamp.className = "lamp wait"; put(text, "CONNECTED: " + ps.client + ", waiting for the first keyframe"); }
-  else { lamp.className = "lamp wait"; put(text, "READY: waiting for a WHIP sender on port " + w.port); }
-  const host = state.publicIp || state.addresses[0] || "address-of-this-pc";
-  put($("whOnLbl"), "WHIP input on (signal #" + w.slot + " on Main, after the last signal)");
-  put($("whHelp"), "Senders use " + whipUrl(host) + " with the WHIP key as bearer token. "
-    + "Open TCP and UDP " + w.port + " in the firewall (Set firewall rule in SRT) and forward both in the router. "
-    + "The picture is passed on unchanged (H.264 or H.265); the sound becomes AAC, which needs about 90 ms: the stream is timed for it. "
-    + (perSignal() ? "With a port per signal, receivers get the WHIP input over the matrix only." : "Receivers fetch it with the stream ID, forward outputs through the Matrix."));
-}
-
-$("whKeyNew").addEventListener("click", () => { try { $("whKey").value = randomKey({ ...keySettings(), len: Math.max(24, keySettings().len) }); } catch (e) { note("whErr", e.message); } });
-$("whIdNew").addEventListener("click", () => { try { $("whId").value = randomKey(keySettings()); } catch (e) { note("whErr", e.message); } });
-$("whKeyCopy").addEventListener("click", () => copy($("whKey").value, $("whKeyCopy")));
-$("whIdCopy").addEventListener("click", () => copy($("whId").value, $("whIdCopy")));
-$("whForm").addEventListener("submit", async (ev) => {
-  ev.preventDefault();
-  const on = $("whOn").checked;
-  // Switching on for the first time: a stream ID and a key are made, so it works at once.
-  if (on && !$("whId").value.trim()) $("whId").value = randomKey(keySettings());
-  if (on && !$("whKey").value.trim()) $("whKey").value = randomKey({ ...keySettings(), len: Math.max(24, keySettings().len) });
-  const ok = await change("PUT", "/api/whip", {
-    enabled: on, port: Number($("whPort").value), aacBitrate: Number($("whBitrate").value),
-    key: $("whKey").value.trim(), id: $("whId").value.trim(), pass: $("whPass").value, name: $("whName").value.trim(),
-  }, ["whNote", "saved"], "whErr");
-  if (ok) { fillWhipForm(); checkFirewall(); }
-});
-
 // ---- pages, clock, polling ----
 $("nav").addEventListener("click", (ev) => {
-  const go = ev.target.dataset.go;
-  if (!go) return;
-  for (const b of $("nav").children) b.classList.toggle("on", b === ev.target);
+  const btn = ev.target.closest("button[data-go]");
+  if (!btn) return;
+  const go = btn.dataset.go;
+  for (const b of $("nav").querySelectorAll("button[data-go]")) b.classList.toggle("on", b === btn);
   for (const s of document.querySelectorAll("section[data-page]")) s.hidden = s.dataset.page !== go;
   checkFirewall();
 });
@@ -1228,9 +1521,19 @@ setInterval(() => { $("clock").textContent = new Date().toLocaleTimeString("de-C
 
 async function poll() {
   if (!loginOpen) {
-    try { render(await api("GET", "/api/state")); }
-    catch { if (!loginOpen) put($("portBadge"), "No answer from SRT Bridge", "chBadge bad"); }
+    try {
+      const data = await api("GET", "/api/state");
+      render(data);
+    } catch (err) {
+      console.error("poll / render error:", err);
+      if (!loginOpen) put($("portBadge"), tr("no_answer", "Sin respuesta de SRT Bridge"), "chBadge bad");
+    }
   }
   setTimeout(poll, 1000);
 }
+
+if ($("langEn")) $("langEn").addEventListener("click", () => setLanguage("en"));
+if ($("langEs")) $("langEs").addEventListener("click", () => setLanguage("es"));
+applyLanguageToDOM();
+
 poll();

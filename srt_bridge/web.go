@@ -57,6 +57,7 @@ func newWebServer(h *Hub, rm *Remote, out *Output, wp *Whip) http.Handler {
 	mux := http.NewServeMux()
 	static, _ := fs.Sub(webFiles, "web")
 	mux.Handle("GET /", http.FileServerFS(static))
+	mux.Handle("GET /metrics", handleMetrics(h))
 
 	// full is the state of the hub plus what lives outside it; every answer
 	// to a change carries it, so the page never draws half a state.
